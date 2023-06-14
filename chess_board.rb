@@ -1,38 +1,50 @@
-require_relative 'field.rb'
 require_relative 'knight.rb'
 
 class ChessBoard
-  attr_accessor :board, :knight
+  attr_reader :board_size
 
   def initialize(board_size = 8)
-    @board = Array.new(board_size){|i|Array.new(board_size){|j| Field.new([i,j])}}
-    create_knight_tree()
-    @knight = Knight.new(self.board[0][0])
-    
+    @board_size = board_size
+  end
+ 
+
+  def knight_moves(start_pos, end_pos)
+    last_knight = make_tree(start_pos, end_pos)
+    history = get_history(last_knight, start_pos)
+    print_knight_movements(history)
   end
 
   private
-  def create_knight_tree()
-    self.board.each do |field|
-      puts field.position
-      #next_possibile_possitions = calc_next_knight_moves(current_position)
-      #self.board.each do |child_field|
-        #case next_possibile_possitions
-       #   in [*, child_field.position, *] then field.knight_children = child_field
-       # end
-      #end
+  def make_tree(start_pos, end_pos)
+    knight = Knight.new(start_pos, board_size)
+    queue = [knight]
+    current_knight = queue.shift
+    until current_knight.position == end_pos
+      current_knight.next_movements.each do |position|
+        child = Knight.new(position, board_size, current_knight)
+        current_knight.children << child
+        queue << child
+        if child.position == end_pos
+          break
+        end
+      end
+      current_knight = queue.shift
     end
+    current_knight
   end
 
-  def calc_next_knight_moves(current_position)
-    next_pos = []
-    for i in [-2, 2]
-      for j in [-1,1]
-        next_pos << [current_position[0]+i, current_position[1]+j]
-        next_pos << [current_position[0]+j, current_position[1]+i]
-      end
+  def get_history(knight, start_pos)
+    history = [knight]
+    until knight.position == start_pos
+      knight = knight.parent
+      history << knight
     end
-    next_pos
-  end  
+    history
+  end
+
+  def print_knight_movements(history)
+    puts "You made it in #{history.length-1} moves! Here's your path:"
+    history.reverse.each {|knight| p knight.position}
+  end
 
 end
