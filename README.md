@@ -1,4 +1,5 @@
 # knights_travails
+The Odin Project lesson: https://www.theodinproject.com/lessons/ruby-knights-travails
 
 Chess board with a knight and its movings
 
